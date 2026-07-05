@@ -20,7 +20,7 @@ Purpose: portfolio project demonstrating agent orchestration, RAG, tool use, ML 
 ## Stack and environment
 - Python 3.11+, running in WSL2 Ubuntu
 - Dedicated venv at `.venv/` (NOT the conda base environment; do not install into conda)
-- Core deps: langgraph, langchain, langchain-community, faiss-cpu, sentence-transformers, xgboost, scikit-learn, pandas, fastapi, uvicorn, pydantic, pytest, httpx
+- Core deps: langgraph, langchain, faiss-cpu, sentence-transformers, xgboost, scikit-learn, pandas, fastapi, uvicorn, pydantic, pytest, httpx
 - Secrets via environment variables / `.env` (never commit; `.env` is gitignored)
 
 ## Project structure
