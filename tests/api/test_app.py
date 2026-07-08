@@ -70,3 +70,36 @@ def test_triage_response_matches_decision_schema():
     response = client.post("/triage", json=case)
 
     assert set(response.json().keys()) == {"decision", "confidence", "cited_policies", "reasoning"}
+
+
+def test_triage_rejects_transaction_missing_required_feature():
+    transaction = _legit_transaction()
+    del transaction["v14"]
+    case = {
+        "entity_id": "cust_104",
+        "full_name": "Jordan Smith",
+        "date_of_birth": "2000-01-01",
+        "transaction": transaction,
+    }
+
+    response = client.post("/triage", json=case)
+
+    assert response.status_code == 422
+    errors = response.json()["detail"]
+    assert any(error["loc"][-1] == "v14" and error["type"] == "missing" for error in errors)
+
+
+def test_triage_rejects_transaction_with_non_numeric_feature():
+    transaction = _legit_transaction() | {"amount": "not-a-number"}
+    case = {
+        "entity_id": "cust_105",
+        "full_name": "Jordan Smith",
+        "date_of_birth": "2000-01-01",
+        "transaction": transaction,
+    }
+
+    response = client.post("/triage", json=case)
+
+    assert response.status_code == 422
+    errors = response.json()["detail"]
+    assert any(error["loc"][-1] == "amount" for error in errors)
