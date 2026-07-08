@@ -17,6 +17,13 @@ def test_health_returns_ok():
     assert response.json() == {"status": "ok"}
 
 
+def test_root_returns_welcome_message_with_docs_pointer():
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert response.json()["docs"] == "/docs"
+
+
 def test_triage_approves_clean_case():
     case = {
         "entity_id": "cust_100",

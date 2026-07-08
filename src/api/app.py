@@ -35,6 +35,11 @@ class CaseRequest(BaseModel):
     transaction: TransactionFeatures
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"message": "KYC Fraud Triage Agent API", "docs": "/docs"}
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
