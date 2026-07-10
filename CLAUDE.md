@@ -14,8 +14,8 @@ Purpose: portfolio project demonstrating agent orchestration, RAG, tool use, ML 
    - `sanctions_check(name, dob)`: mock watchlist lookup against a small synthetic sanctions/PEP list, returns hit/no-hit with match details.
 4. **Memory:** simple case memory keyed by entity ID so repeat entities carry prior context.
 5. **Decision logic:** two-threshold triage. Low fraud score + no hits = approve. High score or sanctions hit = escalate. Middle band = review. The agent must output structured JSON: decision, confidence, cited_policies, reasoning.
-6. **API:** FastAPI service exposing `POST /triage` and `GET /health`.
-7. **Demo mode:** three cached example cases (clear approve, gray-zone review, clear escalate) that run without live LLM calls, plus live mode gated behind an API key env var.
+6. **API:** FastAPI service exposing `POST /triage`, `GET /health`, and `GET /` (welcome message + `/docs` pointer).
+7. **Stub mode:** a deterministic stand-in model (`src/agent/stub_model.py`) runs any case through the same fixed tool sequence and decision rule with no live LLM call, so the service works with no API key by default. Live mode is gated behind the `TRIAGE_LIVE` env var and not yet wired up.
 
 ## Stack and environment
 - Python 3.11+, running in WSL2 Ubuntu
