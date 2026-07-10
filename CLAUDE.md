@@ -7,7 +7,7 @@ Purpose: portfolio project demonstrating agent orchestration, RAG, tool use, ML 
 
 ## Architecture
 1. **Agent orchestration:** LangGraph state graph implementing a ReAct-style loop (reason, act via tools, observe, decide).
-2. **RAG layer:** FAISS vector store over synthetic KYC/AML policy documents in `data/policies/` (markdown). Exposed to the agent as a `retrieve_policy` tool. Sentence-transformers for embeddings (local, no API cost).
+2. **RAG layer:** TF-IDF vector store (scikit-learn) over synthetic KYC/AML policy documents in `data/policies/` (markdown). Exposed to the agent as a `retrieve_policy` tool. Chosen over neural embeddings (sentence-transformers + FAISS) to keep memory/image size small on the free-tier Render deployment — plenty for keyword-level matching over a five-document corpus.
 3. **Tools:**
    - `retrieve_policy(query)`: semantic search over policy docs, returns relevant policy chunks with source references.
    - `fraud_score(case)`: XGBoost classifier trained on the Kaggle credit card fraud dataset, returns probability and top contributing features.
@@ -20,7 +20,7 @@ Purpose: portfolio project demonstrating agent orchestration, RAG, tool use, ML 
 ## Stack and environment
 - Python 3.11+, running in WSL2 Ubuntu
 - Dedicated venv at `.venv/` (NOT the conda base environment; do not install into conda)
-- Core deps: langgraph, langchain, faiss-cpu, sentence-transformers, xgboost, scikit-learn, pandas, fastapi, uvicorn, pydantic, pytest, httpx
+- Core deps: langgraph, langchain, xgboost, scikit-learn, pandas, fastapi, uvicorn, pydantic, pytest, httpx
 - Secrets via environment variables / `.env` (never commit; `.env` is gitignored)
 
 ## Project structure
@@ -28,7 +28,7 @@ Purpose: portfolio project demonstrating agent orchestration, RAG, tool use, ML 
 src/
   agent/        # LangGraph graph, state, nodes
   tools/        # retrieve_policy, fraud_score, sanctions_check
-  rag/          # ingestion, chunking, FAISS index build/load
+  rag/          # ingestion, chunking, TF-IDF index build/load
   ml/           # XGBoost training script and saved model
   api/          # FastAPI app
   memory/       # case memory

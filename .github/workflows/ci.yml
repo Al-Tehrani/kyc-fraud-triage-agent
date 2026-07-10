@@ -14,9 +14,8 @@ jobs:
         with:
           python-version: "3.14"
 
-      # Caches pip's wheel cache and the sentence-transformers/HF model
-      # download (~/.cache/huggingface) so only the first run pays for them.
-      - name: Cache pip and model downloads
+      # Caches pip's wheel cache so only the first run pays for downloads.
+      - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache
