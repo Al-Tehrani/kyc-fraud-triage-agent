@@ -54,7 +54,7 @@ tests/          # pytest suites mirroring src/
 5. Memory + structured triage decision output, tests.
 6. FastAPI /triage endpoint, tests via httpx.
 7. Dockerfile + GitHub Actions CI (pytest on push).
-8. Demo mode with cached traces + Streamlit/Gradio demo app for Hugging Face Spaces deployment.
+8. Harden /triage input validation; deploy the FastAPI service to Render.
 9. README polish: architecture diagram (Mermaid), metrics discussion, "why this matters for identity verification" section.
 
 ## Owner

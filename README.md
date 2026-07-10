@@ -12,16 +12,3 @@ See [CLAUDE.md](CLAUDE.md) for architecture, stack, and build milestones.
 
 Full write-up (architecture diagram, metrics, motivation) lands in a later
 milestone.
-
-## Demo
-
-A Gradio demo (`src/demo/app.py`) runs the agent on the stub model — no API
-key needed. Try it locally:
-
-```
-python app.py
-```
-
-Then open the printed local URL and either click one of the three preloaded
-cases (clear approve, gray-zone review, clear escalate) or edit the case JSON
-and click "Run triage".
