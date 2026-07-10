@@ -32,18 +32,57 @@ def _tool_result(messages: list[BaseMessage], name: str) -> dict | list | None:
 
 
 def _decide(fraud: dict, sanctions: dict, cited_policies: list[str]) -> TriageDecision:
-    if fraud["risk_band"] == "high" or sanctions["match_status"] == "confirmed_match":
-        decision, confidence = "escalate", 0.9
-    elif fraud["risk_band"] == "low" and sanctions["match_status"] == "no_hit":
-        decision, confidence = "approve", 0.95
-    else:
-        decision, confidence = "review", 0.6
+    """Apply the documented decision rule (risk_score_thresholds.md,
+    escalation_criteria.md, sanctions_screening.md):
 
-    reasoning = (
-        f"Fraud probability {fraud['fraud_probability']} ({fraud['risk_band']} risk); "
-        f"sanctions screening returned {sanctions['match_status']}."
+    - a confirmed sanctions match always escalates, regardless of fraud score.
+    - otherwise, fraud probability against the policy thresholds decides:
+      below 0.30 -> approve, 0.30-0.70 -> review, above 0.70 -> escalate.
+    - a sanctions candidate false positive (name match, DOB differs) must
+      never be auto-cleared, so it forces at least a review.
+
+    Confidence reflects how clear-cut the case is: a confirmed match is a
+    hard rule (fixed high confidence); an approve/escalate driven by fraud
+    score is more confident the further the probability sits from its
+    threshold; a review is inherently the least clear-cut band.
+    """
+    probability = fraud["fraud_probability"]
+    risk_band = fraud["risk_band"]
+    match_status = sanctions["match_status"]
+
+    if match_status == "confirmed_match":
+        decision, confidence = "escalate", 0.95
+        reasoning = (
+            f"Sanctions screening returned a confirmed match, which forces escalation "
+            f"regardless of fraud score (fraud probability {probability}, {risk_band} risk)."
+        )
+    elif risk_band == "high":
+        decision, confidence = "escalate", probability
+        reasoning = (
+            f"Fraud probability {probability} is above the 0.70 escalate threshold "
+            f"({risk_band} risk); sanctions screening returned {match_status}."
+        )
+    elif risk_band == "low" and match_status == "no_hit":
+        decision, confidence = "approve", 1 - probability
+        reasoning = (
+            f"Fraud probability {probability} is below the 0.30 approve threshold "
+            f"({risk_band} risk) and sanctions screening returned {match_status}."
+        )
+    else:
+        decision = "review"
+        confidence = 0.5 + abs(probability - 0.5) if risk_band == "gray_zone" else 0.6
+        reasoning = (
+            f"Fraud probability {probability} ({risk_band} risk) and sanctions status "
+            f"{match_status} don't clear the approve bar or force escalation, so this "
+            "needs analyst review."
+        )
+
+    return TriageDecision(
+        decision=decision,
+        confidence=round(confidence, 2),
+        cited_policies=cited_policies,
+        reasoning=reasoning,
     )
-    return TriageDecision(decision=decision, confidence=confidence, cited_policies=cited_policies, reasoning=reasoning)
 
 
 class StubTriageModel:
